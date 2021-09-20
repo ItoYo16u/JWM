@@ -3,11 +3,13 @@ import Dependencies._
 import scala.sys.process._
 resolvers += "jetbrain skija" at "https://packages.jetbrains.team/maven/p/skija/maven"
 
-lazy val genIcon = taskKey[Unit]("generate icon for title bar")
+lazy val genIconIfNotExists = taskKey[Unit]("generate icon for title bar")
 
-genIcon := {
+genIconIfNotExists := {
+  val macIcon = (Compile / resourceDirectory).value / "macos.icns" 
+  val winIcon = (Compile / resourceDirectory).value / "windows.ico"
   System.getProperty("os.name").toLowerCase match {
-    case mac if mac.contains("mac") => {
+    case mac if mac.contains("mac") && !macIcon.exists() => {
       Process(
         Seq(
           "iconutil",
@@ -18,24 +20,26 @@ genIcon := {
         ( Compile / resourceDirectory).value
       )!
     }
-    case win if win.contains("win") => {
+    case win if win.contains("win") && !winIcon.exists() => {
       Process(
         "convert" +: Seq(16, 24, 32, 48, 256)
           .map(dim => s"windows/icon_${dim}x${dim}.png") :+ "windows.ico",
           (Compile / resourceDirectory).value
       )!
     }
+    case _ => ()
   }
 }
 
-Compile / run := (Compile / run).dependsOn(genIcon).evaluated
+Compile / run := (Compile / run).dependsOn(genIconIfNotExists).evaluated
 
 ThisBuild / organization := "org.jetbrains.jwm"
 javaOptions ++= Seq(
   "enablesystemassertions",
   "-enableassertions",
   "-Xcheck:jni",
-  "-Dfile.encoding=UTF-8"
+  "-Dfile.encoding=UTF-8",
+  "-release","16"
 )
 name := "metrics"
 version := "0.1.0-SNAPSHOT"
