@@ -1,0 +1,26 @@
+name: Rebuild Linux Docker image
+
+on:
+  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'website/**'
+
+jobs:
+  deploy_ghpage:
+    name: Deploy JWM website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd website
+          npm install
+          npm run build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/public
