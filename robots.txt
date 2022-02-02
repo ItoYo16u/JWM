@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://i10416.github.io/JWM/sitemap.xml
+Sitemap: https://i10416.github.io/sitemap.xml
